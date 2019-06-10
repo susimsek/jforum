@@ -32,8 +32,8 @@ services:
       - keycloak-mysql
   keycloak-mysql:
     image: mysql:8.0.16
-    # volumes:
-    #     - ~/volumes/jhipster/test1/mysql/:/var/lib/mysql/
+    volumes:
+      - ~/volumes/jhipster/test1/mysql/:/var/lib/mysql/
     environment:
       - MYSQL_USER=keycloak
       - MYSQL_DATABASE=keycloak
