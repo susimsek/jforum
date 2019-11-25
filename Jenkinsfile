@@ -11,20 +11,23 @@ node {
 
     stage('clean') {
         sh "chmod +x mvnw"
-        sh "./mvnw clean"
+        sh "./mvnw -ntp clean"
+    }
+    stage('nohttp') {
+        sh "./mvnw -ntp checkstyle:check"
     }
 
     stage('install tools') {
-        sh "./mvnw com.github.eirslett:frontend-maven-plugin:install-node-and-yarn -DnodeVersion=v10.15.3 -DyarnVersion=v1.15.2"
+        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-yarn -DnodeVersion=v12.13.0 -DyarnVersion=v1.19.0"
     }
 
     stage('yarn install') {
-        sh "./mvnw com.github.eirslett:frontend-maven-plugin:yarn"
+        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:yarn"
     }
 
     stage('backend tests') {
         try {
-            sh "./mvnw verify"
+            sh "./mvnw -ntp verify"
         } catch(err) {
             throw err
         } finally {
@@ -34,16 +37,16 @@ node {
 
     stage('frontend tests') {
         try {
-            sh "./mvnw com.github.eirslett:frontend-maven-plugin:yarn -Dfrontend.yarn.arguments='run test'"
+            sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:yarn -Dfrontend.yarn.arguments='run test'"
         } catch(err) {
             throw err
         } finally {
-            junit '**/target/test-results/TESTS-*.xml'
+            junit '**/target/test-results/**/TEST-*.xml'
         }
     }
 
     stage('packaging') {
-        sh "./mvnw verify -Pprod -DskipTests"
+        sh "./mvnw -ntp verify -Pprod -DskipTests"
         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
     }
 }
